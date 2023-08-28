@@ -30,6 +30,7 @@
 #endif
 
 #include <stdarg.h>
+#include "os_support.h"
 #include "celt.h"
 #include "entenc.h"
 #include "modes.h"
@@ -40,7 +41,6 @@
 #include "arch.h"
 #include "pitch.h"
 #include "opus_private.h"
-#include "os_support.h"
 #include "cpu_support.h"
 #include "analysis.h"
 #include "mathops.h"

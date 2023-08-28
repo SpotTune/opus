@@ -292,13 +292,7 @@ int _celt_autocorr(
 #ifdef FIXED_POINT
    {
       opus_val32 ac0;
-      ac0 = 1+(n<<7);
-      if (n&1) ac0 += SHR32(MULT16_16(xptr[0],xptr[0]),9);
-      for(i=(n&1);i<n;i+=2)
-      {
-         ac0 += SHR32(MULT16_16(xptr[i],xptr[i]),9);
-         ac0 += SHR32(MULT16_16(xptr[i+1],xptr[i+1]),9);
-      }
+      ac0 = 1+(n<<7) + celt_inner_prod_with_shift(xptr, xptr, n, 9);
 
       shift = celt_ilog2(ac0)-30+10;
       shift = (shift)/2;

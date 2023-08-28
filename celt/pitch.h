@@ -171,6 +171,31 @@ static OPUS_INLINE opus_val32 celt_inner_prod_c(const opus_val16 *x,
     ((void)(arch),celt_inner_prod_c(x, y, N))
 #endif
 
+#ifdef FIXED_POINT
+#ifndef OVERRIDE_CELT_INNER_PROD_WITH_SHIFT
+static OPUS_INLINE opus_val32 celt_inner_prod_with_shift(const opus_val16 *x,
+                                                         const opus_val16 *y, int N, int shift) {
+#if OPUS_FAST_INT64
+  int j;
+  opus_int64 sum64 = 0;
+  for ( j=0;j<N;j++)
+    sum64 += MULT16_16(x[j],y[j]);
+  return (opus_val32)(sum64 << shift);
+#else
+  int i;
+  opus_val32 sum = 0;
+  if (N&1) sum = SHR32(MULT16_16(x[0],y[0]),shift);
+  for(i=(N&1);i<N;i+=2)
+  {
+    sum += SHR32(MULT16_16(x[i],y[i]),shift);
+    sum += SHR32(MULT16_16(x[i+1],y[i+1]),shift);
+  }
+  return sum;
+#endif
+}
+#endif /* OVERRIDE_CELT_INNER_PROD_WITH_SHIFT */
+#endif /* FIXED_POINT */
+
 #ifdef NON_STATIC_COMB_FILTER_CONST_C
 void comb_filter_const_c(opus_val32 *y, opus_val32 *x, int T, int N,
      opus_val16 g10, opus_val16 g11, opus_val16 g12);

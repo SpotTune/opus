@@ -35,8 +35,8 @@
 #include "config.h"
 #endif
 
-#include "pitch.h"
 #include "os_support.h"
+#include "pitch.h"
 #include "modes.h"
 #include "stack_alloc.h"
 #include "mathops.h"
@@ -49,7 +49,7 @@ static void find_best_pitch(opus_val32 *xcorr, opus_val16 *y, int len,
 #endif
                             )
 {
-   int i, j;
+   int i;
    opus_val32 Syy=1;
    opus_val16 best_num[2];
    opus_val32 best_den[2];
@@ -65,8 +65,7 @@ static void find_best_pitch(opus_val32 *xcorr, opus_val16 *y, int len,
    best_den[1] = 0;
    best_pitch[0] = 0;
    best_pitch[1] = 1;
-   for (j=0;j<len;j++)
-      Syy = ADD32(Syy, SHR32(MULT16_16(y[j],y[j]), yshift));
+   Syy = celt_inner_prod_with_shift(y,y,len,yshift);
    for (i=0;i<max_pitch;i++)
    {
       if (xcorr[i]>0)
@@ -363,9 +362,7 @@ void pitch_search(const opus_val16 * OPUS_RESTRICT x_lp, opus_val16 * OPUS_RESTR
       if (abs(i-2*best_pitch[0])>2 && abs(i-2*best_pitch[1])>2)
          continue;
 #ifdef FIXED_POINT
-      sum = 0;
-      for (j=0;j<len>>1;j++)
-         sum += SHR32(MULT16_16(x_lp[j],y[i+j]), shift);
+      sum = celt_inner_prod_with_shift(x_lp, y+i, len>>1, shift);
 #else
       sum = celt_inner_prod(x_lp, y+i, len>>1, arch);
 #endif
